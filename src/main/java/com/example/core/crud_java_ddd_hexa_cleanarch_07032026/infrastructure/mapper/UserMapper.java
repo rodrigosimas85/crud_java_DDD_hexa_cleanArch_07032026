@@ -22,7 +22,7 @@ public class UserMapper {
     // User (domínio) → UserResponseDTO
     public UserResponseDTO ToResponseDTO(User user){
         return new UserResponseDTO(
-                null,
+                user.getId(),
                 user.getUserCode(),
                 user.getName(),
                 user.getEmail(),

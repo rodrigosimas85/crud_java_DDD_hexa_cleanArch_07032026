@@ -7,7 +7,9 @@ import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.domain.model.User;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.domain.ports.output.UserRepositoryPort;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.adapters.input.dto.UserRequestDTO;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.adapters.input.dto.UserResponseDTO;
+import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.client.NotificationClient;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.mapper.UserMapper;
+import org.antlr.v4.runtime.atn.SemanticContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +35,9 @@ public class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private NotificationClient notificationClient;
+
     @InjectMocks
     private UserService userService;
 
@@ -46,6 +51,8 @@ public class UserServiceTest {
         user = new User(1L, "1", "João", "joao@email.com", 20);
         userRequestDTO = new UserRequestDTO("1", "João", "joao@email.com", 20);
         userResponseDTO = new UserResponseDTO(1L, "1", "João", "joao@email.com", 20);
+       // notificationClient = new NotificationClient()
+
     }
 
     //findAllUsers - Testar listar os usuarios
@@ -105,6 +112,8 @@ public class UserServiceTest {
         assertEquals("joao@email.com", result.getEmail());
         assertEquals(20, result.getIdade());
         verify(userRepositoryPort, times(1)).saveUser(user);
+        verify(notificationClient).sendUserCreatedNotification(anyString(), anyString());
+
 
     }
 
