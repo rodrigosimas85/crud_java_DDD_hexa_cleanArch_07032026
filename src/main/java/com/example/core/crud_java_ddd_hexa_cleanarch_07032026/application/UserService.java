@@ -7,6 +7,7 @@ import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.domain.ports.input
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.domain.ports.output.UserRepositoryPort;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.adapters.input.dto.UserRequestDTO;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.adapters.input.dto.UserResponseDTO;
+import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.client.NotificationClient;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class UserService implements UserServicePort{
 
     private final UserRepositoryPort userRepositoryPort;
     private final UserMapper userMapper;
+    private final NotificationClient notificationClient;
 
     @Override
     public List<UserResponseDTO> findAllUsers() {
@@ -55,6 +57,9 @@ public class UserService implements UserServicePort{
         User user = userMapper.toDomain(userRequestDTO);
         User created = userRepositoryPort.saveUser(user);
         log.info("Usuário {} criado com sucesso.", userRequestDTO.getEmail());
+
+        //Chama NotificationService após criar o usuário
+        notificationClient.sendUserCreatedNotification(created.getUserCode(), created.getEmail());
         return userMapper.ToResponseDTO(created);
     }
 
