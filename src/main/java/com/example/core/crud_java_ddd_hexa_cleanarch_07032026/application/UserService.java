@@ -9,6 +9,8 @@ import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.ada
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.adapters.input.dto.UserResponseDTO;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.client.NotificationClient;
 import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.mapper.UserMapper;
+import com.example.core.crud_java_ddd_hexa_cleanarch_07032026.infrastructure.messaging.UserEventPublisher;
+import com.example.core.events.UserCreatedEventsV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,8 @@ public class UserService implements UserServicePort{
 
     private final UserRepositoryPort userRepositoryPort;
     private final UserMapper userMapper;
-    private final NotificationClient notificationClient;
+    //private final NotificationClient notificationClient;
+    private final UserEventPublisher userEventPublisher;
 
     @Override
     public List<UserResponseDTO> findAllUsers() {
@@ -59,7 +62,16 @@ public class UserService implements UserServicePort{
         log.info("Usuário {} criado com sucesso.", userRequestDTO.getEmail());
 
         //Chama NotificationService após criar o usuário
-        notificationClient.sendUserCreatedNotification(created.getUserCode(), created.getEmail());
+       // notificationClient.sendUserCreatedNotification(created.getUserCode(), created.getEmail());
+
+        //cria evento
+        UserCreatedEventsV1 event = new UserCreatedEventsV1(
+                new UserCreatedEventsV1.Payload(created.getUserCode(), created.getEmail(), created.getName(), created.getIdade())
+        );
+
+        //publica o evento
+        userEventPublisher.publish(event);
+
         return userMapper.ToResponseDTO(created);
     }
 
